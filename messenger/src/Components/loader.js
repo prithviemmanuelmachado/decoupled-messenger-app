@@ -2,7 +2,7 @@ import { CircularProgress } from '@mui/material';
 import { Box } from '@mui/system';
 
 function Loader(props){
-    const { isLoading } = props;
+    const { isLoading, darkModeState } = props;
 
     return<>
         {isLoading && 
@@ -18,7 +18,7 @@ function Loader(props){
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                background: 'rgba(0, 0, 0, 0.25)'
+                background: darkModeState ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.3)'
             }}>
                 <CircularProgress
                     thickness='4'

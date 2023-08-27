@@ -5,40 +5,50 @@ import Home from './Containers/Home';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Box } from '@mui/system';
 import { useState } from 'react';
-import { alpha } from '@mui/system';
+import Header from './Components/header';
+import Register from './Containers/Register';
+import Loader from './Components/loader';
 
 const lightThemes = createTheme({
   palette:{
     primary: {
-      main: '#FFE2F8',
-      contrastText: '#FF2EF5'           
+      main: '#BFFFC7',
+      contrastText: '#00CD19'           
     },
     secondary: {
-      main: '#FF2EF5',
-      contrastText: '#FFE2F8' 
+      main: '#00CD19',
+      contrastText: '#BFFFC7' 
     },
     success: {
       main: '#1FAEE0',
-      contrastText: '#FFE2F8'
+      contrastText: '#BFFFC7'
     },
     info: {
       main: '#ECC913',
-      contrastText: '#FFE2F8'
+      contrastText: '#BFFFC7'
     },
     error: {
       main: '#FB0443',
-      contrastText: '#FFE2F8'
+      contrastText: '#BFFFC7'
     }
   },
+  typography:{
+    fontFamily: 'Rubik',
+    fontWeightLight: 400,
+    fontWeightRegular: 500,
+    fontWeightMedium: 700,
+    fontWeightBold: 1000,
+    fontSize: 15
+  }
 });
 const darkThemes = createTheme({
   palette:{
     primary: {
       main: '#0B0041',
-      contrastText: '#FF00FF'
+      contrastText: '#9400FF'
     },
     secondary: {
-      main: '#FF00FF',
+      main: '#9400FF',
       contrastText: '#0B0041'
     },
     success: {
@@ -54,24 +64,51 @@ const darkThemes = createTheme({
       contrastText: '#0B0041'
     }
   },
+  typography:{
+    fontFamily: 'Rubik',
+    fontWeightLight: 400,
+    fontWeightRegular: 500,
+    fontWeightMedium: 700,
+    fontWeightBold: 1000,
+    fontSize: 15
+  }
 });
 
 function App() {
   const [darkModeState, setDarkModeState] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+
   return<>
     <ThemeProvider theme={darkModeState? lightThemes : darkThemes}>
       <Box sx={{
-        position: 'relative',
         backgroundColor: darkModeState? lightThemes.palette.primary.main : darkThemes.palette.primary.main,
         width: '100vw',
-        height: '100vh'
       }}>
+        <Header darkModeState={darkModeState} setDarkModeState={setDarkModeState}/>
+      </Box>
+      <Box sx={{
+        paddingTop: '3.5rem',
+        paddingInline: '1rem',
+        position: 'relative',
+        backgroundColor: darkModeState? lightThemes.palette.primary.light : darkThemes.palette.primary.light,
+        width: 'calc(100vw - 2rem)',
+        height: 'calc(100vh - 3.5rem)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
+      }}>
+        <Loader 
+          isLoading = {isLoading}
+          darkModeState = {darkModeState}/>
         <Routes>
           <Route
-            element = {<Login/>}
+            element = {<Login setIsLoading = {setIsLoading}/>}
             exact path='/login'/>
           <Route
-            element = {<Home darkModeState={darkModeState} setDarkModeState={setDarkModeState}/>}
+            element = {<Register setIsLoading = {setIsLoading}/>}
+            exact path='/register'/>
+          <Route
+            element = {<Home setIsLoading = {setIsLoading}/>}
             exact path='/'/>
         </Routes>
       </Box>

@@ -1,27 +1,8 @@
-import { useState } from "react";
-import Loader from "../../Components/loader";
-import { FormControl, FormControlLabel, FormGroup, Grid, Switch, Typography } from "@mui/material";
+import { Grid, Typography } from "@mui/material";
 
 function Home(props){
-    const { darkModeState, setDarkModeState } = props;
-    const [ switchText, setSwitchText ] = useState('Light Mode');
-    const [isLoading, setIsLoading] = useState(false);
-    const onSwitchChange = () => {
-        setSwitchText(darkModeState ? 'Dark Mode' : 'Light Mode');
-        setDarkModeState(!darkModeState);
-    }
+    const { setIsLoading } = props;
     return<>
-        <Loader isLoading = {isLoading}/>
-        <FormControl>
-            <FormGroup>
-                <FormControlLabel control={
-                    <Switch 
-                        onChange={onSwitchChange}
-                        color="secondary"
-                        name="DarkModeControl"/>
-                } label={<Typography sx={{color:"primary.contrastText"}}>{switchText}</Typography>} color="primary" />
-            </FormGroup>
-        </FormControl>
         <Grid container>
             <Grid item sx={{
                 backgroundColor: 'primary.main',
@@ -30,7 +11,7 @@ function Home(props){
                 color: 'primary.contrastText',
                 margin: 10
             }}>
-                Primary Box
+                <Typography sx={{fontWeight: 'bold'}}>Primary Box</Typography>
             </Grid>
             <Grid item sx={{
                 backgroundColor: 'secondary.main',
@@ -39,7 +20,7 @@ function Home(props){
                 color: 'secondary.contrastText',
                 margin: 10
             }}>
-                Secondary Box
+                <Typography sx={{fontWeight: 'medium'}}>Secondary Box</Typography>
             </Grid>
             <Grid item sx={{
                 backgroundColor: 'error.main',
@@ -48,7 +29,7 @@ function Home(props){
                 color: 'error.contrastText',
                 margin: 10
             }}>
-                Error Box
+                <Typography sx={{fontWeight: 'regular'}}>Error Box</Typography>
             </Grid>
             <Grid item sx={{
                 backgroundColor: 'info.main',
@@ -57,7 +38,7 @@ function Home(props){
                 color: 'info.contrastText',
                 margin: 10
             }}>
-                Info Box
+                <Typography sx={{fontWeight: 'light'}}>Info Box</Typography>
             </Grid>
             <Grid item sx={{
                 backgroundColor: 'success.main',
@@ -66,7 +47,7 @@ function Home(props){
                 color: 'success.contrastText',
                 margin: 10
             }}>
-                Success Box
+                <Typography>Success Box</Typography>
             </Grid>
         </Grid>
         
