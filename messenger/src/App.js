@@ -13,11 +13,11 @@ const lightThemes = createTheme({
   palette:{
     primary: {
       main: '#BFFFC7',
-      contrastText: '#00CD19'           
+      contrastText: '#00CD19'         
     },
     secondary: {
       main: '#00CD19',
-      contrastText: '#BFFFC7' 
+      contrastText: '#BFFFC7'
     },
     success: {
       main: '#1FAEE0',
@@ -91,8 +91,8 @@ function App() {
         paddingInline: '1rem',
         position: 'relative',
         backgroundColor: darkModeState? lightThemes.palette.primary.light : darkThemes.palette.primary.light,
-        width: 'calc(100vw - 2rem)',
-        height: 'calc(100vh - 3.5rem)',
+        minWidth: 'calc(100vw - 2rem)',
+        minHeight: 'calc(100vh - 3.5rem)',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center'
@@ -105,7 +105,7 @@ function App() {
             element = {<Login setIsLoading = {setIsLoading}/>}
             exact path='/login'/>
           <Route
-            element = {<Register setIsLoading = {setIsLoading}/>}
+            element = {<Register setIsLoading = {setIsLoading} darkModeState = {darkModeState}/>}
             exact path='/register'/>
           <Route
             element = {<Home setIsLoading = {setIsLoading}/>}
