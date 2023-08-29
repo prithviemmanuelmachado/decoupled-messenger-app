@@ -1,7 +1,9 @@
 import { Grid, Typography } from "@mui/material";
 
+
 function Home(props){
     const { setIsLoading } = props;
+    
     return<>
         <Grid container>
             <Grid item sx={{

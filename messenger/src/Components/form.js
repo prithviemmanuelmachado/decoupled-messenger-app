@@ -1,11 +1,14 @@
 import { Button, FormControlLabel, Grid, TextField, Typography } from "@mui/material";
+import { Link } from "react-router-dom";
+
 export default function Form(props){
     const { 
         itemSpacing,
         heading,
         items,
         itemContainerStyling,
-        onSubmit
+        onSubmit,
+        link
     } = props
     return <>
         <Grid container spacing={5}>
@@ -67,16 +70,37 @@ export default function Form(props){
                     </>
                 })}
             </Grid>
-            <Grid item xs={12} sx={{
-                display: 'flex',
-                flexDirection: 'row-reverse'
+            <Grid container item xs={12} sx={{
+                display: 'flex'
             }}>
+                <Grid item xs={8}>
+                {
+                    link &&
+                    <Link
+                        to={link.to}
+                        style={{
+                            textDecoration: 'none'
+                        }}>
+                        <Typography sx={{
+                            color:"primary.contrastText",
+                            fontWeight: 'medium'}}>
+                            {link.text}
+                        </Typography>
+                    </Link>
+                }
+                </Grid>
+                <Grid item xs={4} sx={{
+                    display: 'flex',
+                    justifyContent: 'right',
+                    paddingRight: '10px'
+                }}>
                 <Button 
                 onClick={onSubmit}
                 color="secondary"
                 variant="contained">
                     Submit
                 </Button>
+                </Grid>
             </Grid>
         </Grid>
     </>

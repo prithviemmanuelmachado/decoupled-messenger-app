@@ -1,10 +1,10 @@
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import './App.css';
 import Login from './Containers/Login';
 import Home from './Containers/Home';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Box } from '@mui/system';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from './Components/header';
 import Register from './Containers/Register';
 import Loader from './Components/loader';
@@ -56,7 +56,7 @@ const darkThemes = createTheme({
       contrastText: '#0B0041'
     },
     info: {
-      main: '#FF9600',
+      main: '#FF9000',
       contrastText: '#0B0041'
     },
     error: {
@@ -77,6 +77,19 @@ const darkThemes = createTheme({
 function App() {
   const [darkModeState, setDarkModeState] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if(sessionStorage.getItem('authToken') === null){
+      setIsUserLoggedIn(false);
+      navigate('/login')
+    }else{
+      setIsUserLoggedIn(true);
+      setDarkModeState(sessionStorage.getItem('darkModeState') !== 'true')
+    }
+  }, []);
 
   return<>
     <ThemeProvider theme={darkModeState? lightThemes : darkThemes}>
@@ -84,7 +97,7 @@ function App() {
         backgroundColor: darkModeState? lightThemes.palette.primary.main : darkThemes.palette.primary.main,
         width: '100vw',
       }}>
-        <Header darkModeState={darkModeState} setDarkModeState={setDarkModeState}/>
+        <Header darkModeState={darkModeState} setDarkModeState={setDarkModeState} isUserLoggedIn={isUserLoggedIn} setIsUserLoggedIn = {setIsUserLoggedIn}/>
       </Box>
       <Box sx={{
         paddingTop: '3.5rem',
@@ -102,13 +115,13 @@ function App() {
           darkModeState = {darkModeState}/>
         <Routes>
           <Route
-            element = {<Login setIsLoading = {setIsLoading}/>}
+            element = {<Login setIsLoading = {setIsLoading} setIsUserLoggedIn = {setIsUserLoggedIn} setDarkModeState={setDarkModeState}/>}
             exact path='/login'/>
           <Route
             element = {<Register setIsLoading = {setIsLoading} darkModeState = {darkModeState}/>}
             exact path='/register'/>
           <Route
-            element = {<Home setIsLoading = {setIsLoading}/>}
+            element = {<Home setIsLoading = {setIsLoading} setDarkModeState={setDarkModeState}/>}
             exact path='/'/>
         </Routes>
       </Box>

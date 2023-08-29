@@ -2,11 +2,11 @@ import { AppBar, IconButton, Menu, MenuItem, FormControl, FormControlLabel, Form
 import { useEffect, useState } from "react";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Link } from "react-router-dom";
+import { logout } from "./server";
 
 function Header(props){
-    const { darkModeState, setDarkModeState } = props;
+    const { darkModeState, setDarkModeState, isUserLoggedIn, setIsUserLoggedIn } = props;
     const [ switchText, setSwitchText ] = useState('Light Mode');
-    const [ loginText, setLoginText ] = useState('Login');
     const [ anchorEl, setAnchorEl ] = useState(null);
     const open = Boolean(anchorEl);
 
@@ -24,15 +24,6 @@ function Header(props){
         else
             setSwitchText('Light Mode');
     },[darkModeState]);
-
-    useEffect(() => {
-        if(localStorage.getItem('token')){
-            setLoginText('Logout');
-        }
-        else{
-            setLoginText('Login');
-        }
-    }, []);
 
     return<>
         <AppBar
@@ -78,32 +69,52 @@ function Header(props){
                         }
                     }}
                 >
-                    <Link
-                        to={'/'}
-                        style={{
-                            textDecoration: 'none'
-                        }}>
-                        <MenuItem onClick={handleClose}>
-                            <Typography sx={{
-                                color:"primary.contrastText",
-                                fontWeight: 'medium'}}>
-                                Home
-                            </Typography>                        
-                        </MenuItem>
-                    </Link>
-                    <Link
-                        to={'/login'}
-                        style={{
-                            textDecoration: 'none'
-                        }}>
-                        <MenuItem onClick={handleClose}>
-                            <Typography sx={{
-                                color:"primary.contrastText",
-                                fontWeight: 'medium'}}>
-                                {loginText}
-                            </Typography>                        
-                        </MenuItem>
-                    </Link>
+                    {
+                        isUserLoggedIn? 
+                        <>
+                            <Link
+                                to={'/'}
+                                style={{
+                                    textDecoration: 'none'
+                                }}>
+                                <MenuItem onClick={handleClose}>
+                                    <Typography sx={{
+                                        color:"primary.contrastText",
+                                        fontWeight: 'medium'}}>
+                                        Home
+                                    </Typography>                        
+                                </MenuItem>
+                            </Link>
+                            <MenuItem onClick={() => {
+                                logout(JSON.stringify({token: sessionStorage.getItem('authToken')}));
+                                sessionStorage.removeItem('authToken');
+                                sessionStorage.removeItem('darkModeState');
+                                setIsUserLoggedIn(false);
+                                handleClose();
+                                window.location.reload();
+                            }}>
+                                <Typography sx={{
+                                    color:"primary.contrastText",
+                                    fontWeight: 'medium'}}>
+                                    Logout
+                                </Typography>                        
+                            </MenuItem>
+                        </>: <>
+                            <Link
+                                to={'/login'}
+                                style={{
+                                    textDecoration: 'none'
+                                }}>
+                                <MenuItem onClick={handleClose}>
+                                    <Typography sx={{
+                                        color:"primary.contrastText",
+                                        fontWeight: 'medium'}}>
+                                        Login
+                                    </Typography>                        
+                                </MenuItem>
+                            </Link>
+                        </>
+                    }
                     <MenuItem>
                         <FormControl>
                             <FormGroup>

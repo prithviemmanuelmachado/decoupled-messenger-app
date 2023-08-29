@@ -13,7 +13,33 @@ export function registerUser(model, error, success){
     }, error, success);
 }
 
-export function isUserRegistered(errfnc, successfnc, msgId, retryCount) {
+export function login(model, error, success){
+    sendMessage(model, {
+        controller: {
+        DataType: 'String',
+        StringValue: 'user'
+        },
+        method: {
+        DataType: 'String',
+        StringValue: 'login'
+        }
+    }, error, success);
+}
+
+export function logout(model){
+    sendMessage(model, {
+        controller: {
+        DataType: 'String',
+        StringValue: 'user'
+        },
+        method: {
+        DataType: 'String',
+        StringValue: 'logout'
+        }
+    }, () => null, () => null);
+}
+
+export function retryCheckMessage(errfnc, successfnc, msgId, retryCount) {
     if(retryCount == 4){
         errfnc();
     }
@@ -26,7 +52,7 @@ export function isUserRegistered(errfnc, successfnc, msgId, retryCount) {
                     const message = JSON.parse(element.Body)
                     const res = {
                         status: element.MessageAttributes.statusCode.StringValue,
-                        message: message.message,
+                        body: message,
                         messageHandle: element.ReceiptHandle
                     }
                     successfnc(res);
@@ -35,8 +61,9 @@ export function isUserRegistered(errfnc, successfnc, msgId, retryCount) {
             });
         }
         if(!isMsgRecived && retryCount < 4){
-            console.log('going deeper');
-            isUserRegistered(errfnc, successfnc, msgId, retryCount + 1)
+            setTimeout(() => {
+                retryCheckMessage(errfnc, successfnc, msgId, retryCount + 1)
+            }, 2000)
         }
     });
 }

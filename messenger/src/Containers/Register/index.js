@@ -1,11 +1,14 @@
-import { Alert, Grid, Snackbar } from "@mui/material";
+import { Grid } from "@mui/material";
 import Form from "../../Components/form";
 import { useEffect, useState } from "react";
-import { registerUser, isUserRegistered } from "../../Components/server";
+import { registerUser, retryCheckMessage } from "../../Components/server";
 import { deleteMessage } from "../../Components/aws";
+import Toast from "../../Components/toast";
+import { useNavigate } from "react-router-dom";
 
 export default function Register(props){
     const { setIsLoading, darkModeState } = props;
+    const navigate = useNavigate();
 
     const [fName, setFName] = useState('');
     const [lName, setLName] = useState('');
@@ -55,11 +58,7 @@ export default function Register(props){
             setIsLoading(false);
             setOpen(true);
         }, (data) => {
-            setIsLoading(false);
-            setOpen(true);
-            setToastMsg('test');
-            setToastSeverity('error');
-            isUserRegistered(() => {
+            retryCheckMessage(() => {
                 setToastSeverity('error');
                 setToastMsg('Error while conneceting to server. Please try again later')
                 setIsLoading(false);
@@ -67,9 +66,11 @@ export default function Register(props){
                 setOpen(true);
             }, (res) => {
                 setToastSeverity(res.status === '500' || res.status === '400' ? 'error' : 'success');
-                setToastMsg(res.message);
+                setToastMsg(res.body.message);
                 setIsLoading(false);
                 setOpen(true);
+                if(res.status === '200')
+                    setTimeout(() => navigate('/login'), 3000);
                 deleteMessage(res.messageHandle, err => console.log(err))
             }, data.MessageId, 0);
         })
@@ -139,16 +140,11 @@ export default function Register(props){
     ];
 
     return<>
-        <Snackbar
-            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        <Toast
             open={open}
-            onClose={() => setOpen(false)}
-            autoHideDuration={6000}
-            key={'topright'}>
-            <Alert onClose={() => setOpen(false)} severity={toastSeverity} sx={{ width: '100%' }}>
-                {toastMsg}
-            </Alert>
-        </Snackbar>
+            setOpen={setOpen}
+            toastMsg={toastMsg}
+            toastSeverity={toastSeverity}/>
         <Grid
         container
         sx={{
