@@ -36,10 +36,10 @@ export function sendMessage(data, attributes = null, errorfnc, successfnc) {
     });
 }
 
-export function receiveMessage(errfnc, successfnc){
+export function receiveMessage(errfnc, successfnc, url){
     const params = {
       ...receiveMessageParams,
-      QueueUrl: RESURL,
+      QueueUrl: url === null ? RESURL : url,
     };
   
     sqs.receiveMessage(params, (err, data) => {

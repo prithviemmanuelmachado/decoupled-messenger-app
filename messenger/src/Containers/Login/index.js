@@ -73,6 +73,7 @@ function Login(props){
                 setIsLoading(false);
                 setOpen(true);
                 if(res.status === '200'){
+                    sessionStorage.setItem('sessionUrl', res.body.url);
                     sessionStorage.setItem('authToken', res.body.token);
                     sessionStorage.setItem('darkModeState', res.body.darkModeState);
                     setDarkModeState(res.body.darkModeState)

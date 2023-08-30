@@ -86,9 +86,6 @@ function Header(props){
                                 </MenuItem>
                             </Link>
                             <MenuItem onClick={() => {
-                                logout(JSON.stringify({token: sessionStorage.getItem('authToken')}));
-                                sessionStorage.removeItem('authToken');
-                                sessionStorage.removeItem('darkModeState');
                                 setIsUserLoggedIn(false);
                                 handleClose();
                                 window.location.reload();

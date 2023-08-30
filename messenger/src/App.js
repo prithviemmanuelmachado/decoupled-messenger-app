@@ -8,16 +8,20 @@ import { useState, useEffect } from 'react';
 import Header from './Components/header';
 import Register from './Containers/Register';
 import Loader from './Components/loader';
+import { logout } from './Components/server';
 
 const lightThemes = createTheme({
   palette:{
     primary: {
       main: '#BFFFC7',
-      contrastText: '#00CD19'         
+      contrastText: '#00CD19',
+      input: '#ACFFB6',
+      hover: '#BFFFC7'         
     },
     secondary: {
       main: '#00CD19',
-      contrastText: '#BFFFC7'
+      contrastText: '#BFFFC7',
+      input: '#80FF8F' 
     },
     success: {
       main: '#1FAEE0',
@@ -45,11 +49,14 @@ const darkThemes = createTheme({
   palette:{
     primary: {
       main: '#0B0041',
-      contrastText: '#9400FF'
+      contrastText: '#9400FF',
+      input: '#08002D',
+      hover: '#BFFFC7'
     },
     secondary: {
       main: '#9400FF',
-      contrastText: '#0B0041'
+      contrastText: '#0B0041',
+      input: '#6500AF'
     },
     success: {
       main: '#0B39F4',
@@ -78,16 +85,36 @@ function App() {
   const [darkModeState, setDarkModeState] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
+  const [listOfUsers, setListofUsers] = useState([
+    {
+      fName: 'Prithvi E',
+      lName: 'Machado',
+      userID: 'dafeafdsuifauihfsa',
+      unreadMessages: 10
+    },{
+      fName: 'Prit',
+      lName: 'not me',
+      userID: '1111111111',
+      unreadMessages: 7
+    }
+  ]);
 
   const navigate = useNavigate();
 
   useEffect(() => {
+    window.addEventListener('beforeunload', () => {
+      logout(JSON.stringify({
+          url: sessionStorage.getItem('sessionUrl')
+      }));
+      setIsUserLoggedIn(false);
+    });
+
     if(sessionStorage.getItem('authToken') === null){
       setIsUserLoggedIn(false);
-      navigate('/login')
+      navigate('/login');
     }else{
       setIsUserLoggedIn(true);
-      setDarkModeState(sessionStorage.getItem('darkModeState') !== 'true')
+      setDarkModeState(sessionStorage.getItem('darkModeState') === 'true')
     }
   }, []);
 
@@ -115,13 +142,25 @@ function App() {
           darkModeState = {darkModeState}/>
         <Routes>
           <Route
-            element = {<Login setIsLoading = {setIsLoading} setIsUserLoggedIn = {setIsUserLoggedIn} setDarkModeState={setDarkModeState}/>}
+            element = {
+            <Login 
+            setIsLoading = {setIsLoading} 
+            setIsUserLoggedIn = {setIsUserLoggedIn} 
+            setDarkModeState={setDarkModeState}/>
+            }
             exact path='/login'/>
           <Route
             element = {<Register setIsLoading = {setIsLoading} darkModeState = {darkModeState}/>}
             exact path='/register'/>
           <Route
-            element = {<Home setIsLoading = {setIsLoading} setDarkModeState={setDarkModeState}/>}
+            element = {
+            <Home 
+            setIsLoading = {setIsLoading} 
+            setDarkModeState={setDarkModeState}
+            listOfUsers={listOfUsers}
+            setListofUsers={setListofUsers}
+            />
+            }
             exact path='/'/>
         </Routes>
       </Box>
