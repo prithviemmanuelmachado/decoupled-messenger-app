@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { sendMessage, receiveMessage, deleteMessage } from "./aws";
 
 export function registerUser(model, error, success){
@@ -27,11 +26,7 @@ export function login(model, error, success){
     }, error, success);
 }
 
-export function logout(model){
-    sessionStorage.removeItem('sessionUrl');
-    sessionStorage.removeItem('authToken');
-    sessionStorage.removeItem('darkModeState');
-    
+export function logout(model){    
     sendMessage(model, {
         controller: {
         DataType: 'String',
@@ -46,6 +41,9 @@ export function logout(model){
         StringValue: sessionStorage.getItem('authToken')
         }
     }, () => null, () => null);
+    sessionStorage.removeItem('sessionUrl');
+    sessionStorage.removeItem('authToken');
+    sessionStorage.removeItem('darkModeState');
 }
 
 export function retryCheckMessage(errfnc, successfnc, msgId, retryCount) {

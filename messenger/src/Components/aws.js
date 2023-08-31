@@ -1,12 +1,16 @@
 const AWS = require('aws-sdk');
 
+
 const REQURL = process.env.REACT_APP_SERVER_REQ_QUEUE;
 const RESURL = process.env.REACT_APP_SERVER_RES_QUEUE;
-const SQS_CONFIG = {
-    accessKeyId: process.env.REACT_APP_ACCESS_KEY,
-    secretAccessKey: process.env.REACT_APP_SECRET_ACCESS_KEY,
-    region: process.env.REACT_APP_REGION,
+const CONFIG = {
+  accessKeyId: process.env.REACT_APP_ACCESS_KEY,
+  secretAccessKey: process.env.REACT_APP_SECRET_ACCESS_KEY,
+  region: process.env.REACT_APP_REGION,
 };
+
+const sqs = new AWS.SQS(CONFIG);
+const s3 = new AWS.S3(CONFIG);
 
 const receiveMessageParams = {
     MaxNumberOfMessages: 10,
@@ -14,8 +18,23 @@ const receiveMessageParams = {
     WaitTimeSeconds: 10,
     MessageAttributeNames: ['All'],
 };
-  
-const sqs = new AWS.SQS(SQS_CONFIG);
+
+export function uploadFiles(data){
+  let key = data.name;
+  let name = key.split('.');
+  let ext = name.pop();
+  key = name.join('_') + '_' + Date.now() + '.' + ext;
+  s3.putObject({
+    Key: key,
+    Body: data,
+    Bucket: process.env.REACT_APP_BUCKET
+  }, (err, data)=> {
+    if(err){
+      console.log(err);
+    }
+    console.log(data);
+  } )
+}
   
 export function sendMessage(data, attributes = null, errorfnc, successfnc) {
     let params = {

@@ -2,19 +2,21 @@ import { Chip, Grid, Link, Paper, Typography } from "@mui/material";
 
 export default function User(props){
     const {
-        userInfo
+        userInfo,
+        loadMessages,
+        isSelected
     } = props;
     return<>
         <Link onClick={() => {
-            console.log(userInfo.userID);
+            loadMessages(userInfo.userID);
         }} underline='none'>
         <Grid item sx={{
             height: '4rem',
-            marginTop: '0.2em',
-            marginInline: '0.2em'
+            marginTop: '1em',
+            marginInline: '0.75em'
         }}>
-            <Paper elevation={10} sx={{
-                backgroundColor: 'primary.input',
+            <Paper elevation={isSelected? 20: 10} sx={{
+                backgroundColor: isSelected? 'secondary.selected': 'primary.input',
                 height: '100%'
             }}>
                 <Grid container direction='row' alignItems='stretch' justifyContent='center'>
@@ -22,11 +24,11 @@ export default function User(props){
                         <Typography sx={{
                             color: 'primary.contrastText'
                         }}>
-                            {userInfo.fName + ' ' + userInfo.lName}
+                            {userInfo.name}
                         </Typography>
                     </Grid>
                     <Grid item xs={2} sx={{paddingTop: '1em'}}>
-                        <Chip label={userInfo.unreadMessages} color='success'/>
+                        <Chip label={userInfo.unreadMessages} color='secondary'/>
                     </Grid>
                 </Grid>                
             </Paper>

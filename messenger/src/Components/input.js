@@ -1,4 +1,4 @@
-import { Grid, IconButton, TextField } from "@mui/material";
+import { Button, Grid, IconButton, TextField } from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
 import SendIcon from '@mui/icons-material/Send';
@@ -6,6 +6,7 @@ import AttachFileIcon from '@mui/icons-material/AttachFile';
 
 function SingleInput(props){
     const {
+        isSendActive,
         placeholder,
         color,
         value,
@@ -17,7 +18,8 @@ function SingleInput(props){
         searchGrid = 0,
         clearGrid = 0,
         sendGrid = 0,
-        uploadGrid = 0
+        uploadGrid = 0,
+        selected
     } = props;
     const inputGrid = 12 - (searchGrid + clearGrid + sendGrid + uploadGrid);
     return<>
@@ -26,7 +28,14 @@ function SingleInput(props){
             <TextField placeholder={placeholder} color={color} value={value} fullWidth sx={{
                 backgroundColor: color + '.input',
                 input: {color: color+'.contrastText'}
-            }} variant='outlined' onChange={(e) => setValue(e.target.value)}/>
+            }} variant='outlined' onChange={(e) => setValue(e.target.value)} 
+                onKeyDown={e => {
+                    if(e.key === 'Enter'){
+                        if(onSearch && value !== '') onSearch();
+                        if(onSend && isSendActive && value !== '') onSend();
+                        setValue('');
+                    }
+                }}/>
             </Grid>
             {
                 searchGrid !== 0 &&  
@@ -61,11 +70,15 @@ function SingleInput(props){
             {
                 uploadGrid !== 0 &&  
                 <Grid item xs={uploadGrid}>
-                    <IconButton 
-                    onClick={onUpload}
-                    color={color === 'primary'? 'secondary' : color === 'secondary' ? 'primary' : color} size='large'>
+                    <Button
+                    component='label'
+                    color={color === 'primary'? 'secondary' : color === 'secondary' ? 'primary' : color}
+                    sx={{
+                        padding: '10px'
+                    }}>
                         <AttachFileIcon/>
-                    </IconButton>
+                        <input hidden id={'fileUpload'} multiple type="file" onChange={onUpload} disabled={selected === ''? true : false}/>
+                    </Button>
                 </Grid>
             }            
         </Grid>

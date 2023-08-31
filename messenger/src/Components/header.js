@@ -71,7 +71,7 @@ function Header(props){
                 >
                     {
                         isUserLoggedIn? 
-                        <>
+                        <div>
                             <Link
                                 to={'/'}
                                 style={{
@@ -96,7 +96,7 @@ function Header(props){
                                     Logout
                                 </Typography>                        
                             </MenuItem>
-                        </>: <>
+                        </div>:
                             <Link
                                 to={'/login'}
                                 style={{
@@ -110,7 +110,6 @@ function Header(props){
                                     </Typography>                        
                                 </MenuItem>
                             </Link>
-                        </>
                     }
                     <MenuItem>
                         <FormControl>
