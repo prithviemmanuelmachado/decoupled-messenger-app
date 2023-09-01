@@ -8,8 +8,10 @@ import { useState, useEffect } from 'react';
 import Header from './Components/header';
 import Register from './Containers/Register';
 import Loader from './Components/loader';
-import { logout } from './Components/server';
+import { logout, loopCheckMessage, selectSearchUser } from './Components/server';
 import { CssBaseline, GlobalStyles } from '@mui/material';
+import { deleteMessage } from './Components/aws';
+import Toast from './Components/toast';
 
 const lightThemes = createTheme({
   palette:{
@@ -89,105 +91,127 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
   const [message, setMessage] = useState('');
-  const [listOfUsers, setListofUsers] = useState([
-    {
-      name: 'Prithvi E Machado',
-      unreadMessages: 10,
-      userID: 'dafeafdsuifauihfsa'
-    },{
-      name: 'Prit not me',
-      unreadMessages: 7,
-      userID: '1111111111'
-    }
-  ]);
-  const [listOfMessages, setListofMessages] = useState({
-    'dafeafdsuifauihfsa': [
-      { body: 'Prithvi E first ', to: 'dafeafdsuifauihfsa', dateTime: new Date('2023-08-29T08:09:30.970+00:00')},
-      { body: 'Prithvi E sec from me', to: null, dateTime: new Date('2023-08-29T08:09:30.970+00:00')},
-      { body: 'Prithvi E third ', to: 'dafeafdsuifauihfsa', dateTime: new Date('2023-08-29T08:09:30.970+00:00') },
-      { body: 'Prithvi E fourth from me', to: null, dateTime: new Date('2023-08-29T08:09:30.970+00:00')},
-      { body: 'Prithvi E fifth ', to: 'dafeafdsuifauihfsa', dateTime: new Date('2023-08-29T08:09:30.970+00:00') },
-      { body: 'Prithvi E first ', to: 'dafeafdsuifauihfsa', dateTime: new Date('2023-08-29T08:09:30.970+00:00')},
-      { body: 'Prithvi E sec from me', to: null, dateTime: new Date('2023-08-29T08:09:30.970+00:00')},
-      { body: 'Prithvi E third ', to: 'dafeafdsuifauihfsa', dateTime: new Date('2023-08-29T08:09:30.970+00:00') },
-      { body: 'Prithvi E fourth from me', to: null, dateTime: new Date('2023-08-29T08:09:30.970+00:00')},
-      { body: 'Prithvi E fifth from me', to: null , dateTime: new Date('2023-08-29T08:09:30.970+00:00')},
-      { body: 'Prithvi E first ', to: 'dafeafdsuifauihfsa', dateTime: new Date('2023-08-29T08:09:30.970+00:00')},
-      { body: 'Prithvi E sec from me', to: null, dateTime: new Date('2023-08-29T08:09:30.970+00:00')},
-      { body: 'dafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsadafeafdsuifauihfsa', 
-      to: null, dateTime: new Date('2023-08-29T08:09:30.970+00:00') },
-      { body: 'Prithvi E fourth from me', to: null, dateTime: new Date('2023-08-29T08:09:30.970+00:00')},
-      { body: 'Prithvi E fifth ', to: 'dafeafdsuifauihfsa', dateTime: new Date('2023-08-29T08:09:30.970+00:00') },
-      { body: {
-        url: '',
-        type: 'image/png'
-      }, to: 'dafeafdsuifauihfsa', dateTime: new Date('2023-08-29T08:09:30.970+00:00') },
-      { body: {
-        url: '',
-        type: 'application/png'
-      }, to: null, dateTime: new Date('2023-08-29T08:09:30.970+00:00') },
-      { body: {
-        url: '',
-        type: 'application/png'
-      }, to: 'dafeafdsuifauihfsa', dateTime: new Date('2023-08-29T08:09:30.970+00:00') },
-      { body: {
-        url: '',
-        type: 'image/png'
-      }, to: null, dateTime: new Date('2023-08-29T08:09:30.970+00:00') }
-    ],
-    '1111111111': [
-      { body: 'Prit first from me', to: null, dateTime: new Date('2023-08-29T08:09:30.970+00:00')},
-      { body: 'Prit sec ', to: '1111111111', dateTime: new Date('2023-08-29T08:09:30.970+00:00')},
-      { body: 'Prit third ', to: '1111111111' , dateTime: new Date('2023-08-29T08:09:30.970+00:00')},
-      { body: 'Prit fourth from me', to: null, dateTime: new Date('2023-08-29T08:09:30.970+00:00')},
-      { body: 'Prit fifth from me', to: null , dateTime: new Date('2023-08-29T08:09:30.970+00:00')}
-    ]
-  });
+
+  // listOfUsers data type
+  // [{ 
+  //    name: <user full name>,
+  //    unreadMessages: <number of unread messages>,
+  //    userID: <userID>
+  // }]
+  const [listOfUsers, setListofUsers] = useState([]);
+  
+  // listOfMessages data type
+  // {<userID>: [{ 
+  //    body: <
+  //       text if normal message OR
+  //       if attachment {url: <url to s3>, type: <type of attachment>}
+  //    >,
+  //    to: <null if i sent the message OR userID if someone else sent message>,
+  //    dateTime: <dateTime of message in utf format>
+  // }]}
+  const [listOfMessages, setListofMessages] = useState({});
   const [displayMessages, setDisplayMessages] = useState([]);
   const [displayUsers, setDisplayUsers] = useState([]);
   const [searchUser, setSearchUser] = useState('');
-  const [selected, setSelected] = useState('');
+  const [selected, setSelected] = useState({});
+  const [open, setOpen] = useState(false);
+  const [toastMsg, setToastMsg] = useState('');
+  const [toastSeverity, setToastSeverity] = useState('error');
 
-  const loadMessages = (userID) => {
-    setSelected(userID);
-    const users = listOfUsers;
+  const loadMessages = (user) => {
+    setSelected(user);
+    if(listOfMessages[user.userID]){
+      const users = listOfUsers;
 
-    //update unread message count
-    users.forEach((ele, index) => {
-      if(ele.userID === userID){
-        ele.unreadMessages = 0;
-      }
-    });
+      //update unread message count
+      users.forEach((ele, index) => {
+        if(ele.userID === user.userID){
+          ele.unreadMessages = 0;
+        }
+      });
+      setListofUsers(users);
+      setDisplayMessages(listOfMessages[user.userID]);
+    } else {
+      setDisplayMessages([]);
 
-    setListofUsers(users);
-    setDisplayMessages(listOfMessages[userID]);
+      //send message to get last 20 messages from this user to me
+      selectSearchUser(JSON.stringify({userID: user.userID}));
+
+    }
   }
   const navigate = useNavigate();
 
+  //testing
+  // const printMainArrays = () => {
+  //   console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+  //   console.log('displayU :', displayUsers);
+  //   console.log('displayM : ', displayMessages);
+  //   console.log('listOfU : ', listOfUsers);
+  //   console.log('listOfM : ', listOfMessages);
+  // }
+
   //executed on load of page
   useEffect(() => {
+    //printMainArrays();
     //listener to execute logout function on close of tab
     window.addEventListener('beforeunload', () => {
-      // logout(JSON.stringify({
-      //     url: sessionStorage.getItem('sessionUrl')
-      // }));
+      logout(JSON.stringify({
+          url: sessionStorage.getItem('sessionUrl')
+      }));
       setIsUserLoggedIn(false);
     });
 
     //check auth
-    setDisplayUsers(listOfUsers);
+    //setDisplayUsers(listOfUsers);
     if(sessionStorage.getItem('authToken') === null){
       setIsUserLoggedIn(false);
-      //navigate('/login');
+      navigate('/login');
     }else{
-      //setDisplayUsers(listOfUsers);
+      setDisplayUsers(listOfUsers);
       setIsUserLoggedIn(true);
       setDarkModeState(sessionStorage.getItem('darkModeState') === 'true')
     }
   }, []);
 
+  //handle calling loop job on login
+  useEffect(() => {
+    if(isUserLoggedIn){
+      loopCheckMessage((err) => console.log(err), (data) => {
+        console.log(data);
+        data.Messages.forEach(msg => {
+          if(msg.MessageAttributes.statusCode.StringValue !== '200'){
+            //session expired
+            if(msg.MessageAttributes.statusCode.StringValue !== '401'){
+              setToastSeverity('info');
+              setTimeout(() => {
+                window.location.reload();
+              }, 4000);
+            }else{
+              setToastSeverity('error');
+            }
+            setToastMsg(msg.body.message);
+            setOpen(true);
+          }else{
+            //results for user search
+            if(msg.MessageAttributes.action.StringValue === 'searchUser'){
+              setDisplayUsers(JSON.parse(msg.Body).listOfUsers);
+            }
+
+            //results of selecting a searched user
+            if(msg.MessageAttributes.action.StringValue === 'selectSearchUser'){
+              setDisplayMessages(JSON.parse(msg.Body));
+            }
+          }
+          //delete message once processed
+          deleteMessage(msg.messageHandle, err => null, sessionStorage.getItem('sessionUrl'));
+        })
+      }, !isUserLoggedIn);
+    }
+  }, [isUserLoggedIn])
+
   //local user serach
   useEffect(() => {
+    //printMainArrays();
     const filtered = listOfUsers.filter((ele) => {
       return ele.name.toLowerCase().includes(searchUser.toLowerCase());
     })
@@ -195,33 +219,54 @@ function App() {
   },[searchUser]);
 
   useEffect(() => {
+    //printMainArrays();
     //auto scroll to bottom of chat
     var messageBox = document.getElementById('messageBox');
-    messageBox.scrollTop = messageBox.scrollHeight;
+    if(messageBox)
+      messageBox.scrollTop = messageBox.scrollHeight;
   }, [displayMessages])
 
-  const addMessage = () => {
-    if(selected !== ''){
-      const msg = { body: message, to: selected, dateTime: new Date() };
+  const clearSearch = () => {
+    //printMainArrays();
+    setSearchUser('');
+    setDisplayUsers([...listOfUsers]);
+    setDisplayMessages([]);
+  }
 
-      //push message to main array
-      let temp = listOfMessages;
-      temp[selected].push(msg);
-      setListofMessages(temp);
+  const addMessage = (data) => {
+    //printMainArrays();
+    if(selected.userID){
+      const msg = { body: data ? data : message, to: selected.userID, dateTime: new Date() };
 
       //move new user to top
       let uTemp = [...listOfUsers];
       let curUser = {};
-      uTemp.forEach((ele, index) => {
-        if(ele.userID === selected){
-          curUser = ele;
-          uTemp.splice(index, 1);
-        }
-      })
+      if(listOfMessages[selected.userID]){
+        uTemp.forEach((ele, index) => {
+          if(ele.userID === selected.userID){
+            curUser = ele;
+            uTemp.splice(index, 1);
+          }
+        })
+      }else{
+        curUser = selected;
+        curUser.unreadMessages = 0;
+      }
+      setListofUsers([curUser, ...uTemp]);
       setDisplayUsers([curUser, ...uTemp]);
 
+      //push message to main array
+      let temp = listOfMessages;
+      if(!temp[selected.userID]){
+        temp[selected.userID] = [...displayMessages]
+      }
+      console.log('sel', selected)
+      temp[selected.userID].push(msg);
+      console.log(temp);
+      setListofMessages(temp);
+
       //display new messages
-      setDisplayMessages([...temp[selected]]);
+      setDisplayMessages([...temp[selected.userID]]);
 
       //send msg to server to save to db
     }
@@ -229,6 +274,11 @@ function App() {
 
   return<>
     <ThemeProvider theme={darkModeState? lightThemes : darkThemes}>
+      <Toast
+        open={open}
+        setOpen={setOpen}
+        toastMsg={toastMsg}
+        toastSeverity={toastSeverity}/>
       <CssBaseline/>
       <GlobalStyles
         styles={{
@@ -255,7 +305,6 @@ function App() {
         paddingTop: '3.5rem',
         paddingInline: '1rem',
         position: 'relative',
-        //backgroundColor: darkModeState? lightThemes.palette.primary.light : darkThemes.palette.primary.light,
         minWidth: 'calc(100vw - 2rem)',
         minHeight: 'calc(100vh - 3.5rem)',
         display: 'flex',
@@ -291,6 +340,7 @@ function App() {
             addMessage={addMessage}
             message={message}
             setMessage={setMessage}
+            clearSearch={clearSearch}
             />
             }
             exact path='/'/>

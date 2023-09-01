@@ -18,8 +18,7 @@ function SingleInput(props){
         searchGrid = 0,
         clearGrid = 0,
         sendGrid = 0,
-        uploadGrid = 0,
-        selected
+        uploadGrid = 0
     } = props;
     const inputGrid = 12 - (searchGrid + clearGrid + sendGrid + uploadGrid);
     return<>
@@ -28,7 +27,7 @@ function SingleInput(props){
             <TextField placeholder={placeholder} color={color} value={value} fullWidth sx={{
                 backgroundColor: color + '.input',
                 input: {color: color+'.contrastText'}
-            }} variant='outlined' onChange={(e) => setValue(e.target.value)} 
+            }} variant='outlined' onChange={(e) => setValue(e)} 
                 onKeyDown={e => {
                     if(e.key === 'Enter'){
                         if(onSearch && value !== '') onSearch();
@@ -77,7 +76,7 @@ function SingleInput(props){
                         padding: '10px'
                     }}>
                         <AttachFileIcon/>
-                        <input hidden id={'fileUpload'} multiple type="file" onChange={onUpload} disabled={selected === ''? true : false}/>
+                        <input hidden id={'fileUpload'} multiple type="file" onChange={onUpload} disabled={isSendActive ? true : false}/>
                     </Button>
                 </Grid>
             }            

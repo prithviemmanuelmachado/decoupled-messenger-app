@@ -1,12 +1,12 @@
 import { Grid, Typography } from "@mui/material";
 import SingleInput from "../../Components/input";
-import { useState } from "react";
 import { sendSearchUser } from "../../Components/server";
 import User from "../../Components/user";
 import Message from "../../Components/message";
 import { Box } from "@mui/system";
 import { uploadFiles } from "../../Components/aws";
-
+import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
+import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 
 function Home(props){
     const {
@@ -19,7 +19,8 @@ function Home(props){
         selected,
         addMessage,
         message,
-        setMessage
+        setMessage,
+        clearSearch
      } = props;
 
     return<>
@@ -38,14 +39,18 @@ function Home(props){
                         placeholder='Search user'
                         color='primary'
                         value={searchUser}
-                        setValue={setSearchUser}
+                        setValue={e => {
+                            if(e.target){
+                                setSearchUser(e.target.value)
+                            }else{
+                                setSearchUser('');
+                            }
+                        }}
                         onSearch={() => {
                             //send message to search user
-                            //sendSearchUser(JSON.stringify({name: searchUser}))
+                            sendSearchUser(JSON.stringify({name: searchUser}))
                         }}
-                        onClear={() => {
-                            setSearchUser('');
-                        }}
+                        onClear={clearSearch}
                         searchGrid={2}
                         clearGrid={2}/>
                 </Grid>
@@ -55,10 +60,18 @@ function Home(props){
                         listOfUsers.length === 0 ? 
                         <Typography sx={{
                             color: 'secondary.contrastText',
-                            fontWeight: 'bold',
-                            fontSize: '3rem'
+                            fontSize: '10rem',
+                            textAlign: 'center',
+                            marginTop: '6rem'
                         }}>
-                            Big empty..... <br/>No friends?
+                            <SentimentVeryDissatisfiedIcon fontSize='inherit'/> <br/>
+                            <Typography sx={{
+                                color: 'secondary.contrastText',
+                                fontSize: '1.5rem',
+                                fontWeight: 'bold'
+                            }}>
+                            Big empty <br/>No friends? 
+                            </Typography>
                         </Typography>: 
                         listOfUsers.map((ele, index) => {
                             return <>
@@ -67,7 +80,7 @@ function Home(props){
                                     loadMessages(e);
                                 }}
                                 userInfo={ele}
-                                isSelected={ele.userID === selected}/>
+                                isSelected={ele.userID === selected.userID}/>
                             </>
                         })
                     }
@@ -79,33 +92,66 @@ function Home(props){
             }}>
                 <Grid item xs={10} container direction='row' alignItems={'flex-end'}>
                     <Grid id='messageBox' sx={{ overflowY: 'scroll', height: '600px', width: '850px', paddingBottom: '10px' }}>
-                    {
-                        displayMessages.map((ele, index) => {
+                        {
+                        selected.userID === undefined ?
+                        <Typography sx={{
+                            fontSize: '10rem',
+                            textAlign: 'center'
+                        }} >
+                            <RemoveCircleIcon sx={{
+                            color: 'secondary.main',
+                            fontSize: 'inherit',
+                            marginTop: '6rem',
+                            animation: "spin 2s linear infinite",
+                            "@keyframes spin": {
+                            "100%": {
+                                transform: "rotate(360deg)",
+                            },
+                            "0%": {
+                                transform: "rotate(0deg)",
+                            },
+                            }
+                            }}/>
+                            <Typography sx={{
+                                color: 'secondary.main',
+                                fontSize: '1.5rem',
+                                fontWeight: 'bold'
+                            }}>
+                            Great nothings
+                            </Typography>
+                        </Typography>
+                        :displayMessages.map((ele, index) => {
                             return <>
                             <Message body={ele.body} date={ele.dateTime} isToMe={ele.to === null}/>
                             </>
                         })
-                    }
+                        }
                     </Grid>
                 </Grid>
                 <Grid item xs={1} sx={{
                     backgroundColor: 'secondary.input'
                 }}>
                     <SingleInput
-                        isSendActive={selected !== ''}
+                        isSendActive={selected.userID === undefined}
                         color='primary'
                         value={message}
-                        setValue={setMessage}
+                        setValue={(e) => {
+                            if(e.target){
+                                setMessage(e.target.value)
+                            } else {
+                                setMessage('')
+                            }
+                        } }
                         onSend={addMessage}
                         onUpload={(e) => {
                             const files = e.target.files;
+                            console.log('upload triggered : ', files)
                             Object.values(files).forEach(file => {
-                                uploadFiles(file);
+                                uploadFiles(file,data => addMessage(data));
                             });
                         }}
                         sendGrid={1}
-                        uploadGrid={1}
-                        selected={selected}/>
+                        uploadGrid={1}/>
                 </Grid>
             </Grid>
         </Grid>

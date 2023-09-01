@@ -75,16 +75,16 @@ export function retryCheckMessage(errfnc, successfnc, msgId, retryCount) {
     }, null);
 }
 
-export function loopCheckMessage(errfnc, successfnc) {
+export function loopCheckMessage(errfnc, successfnc, stopLoopJob) {
     receiveMessage(errfnc, (data) => {
         if(data.Messages){
             successfnc(data);
         }
-        if(sessionStorage.getItem('sessionUrl') === undefined || sessionStorage.getItem('sessionUrl') === null)
+        if(sessionStorage.getItem('sessionUrl') === undefined || sessionStorage.getItem('sessionUrl') === null || stopLoopJob)
             return;
         setTimeout(() => {
             loopCheckMessage(errfnc, successfnc)
-        }, 4000)
+        }, 2000)
     }, sessionStorage.getItem('sessionUrl'));
 }
 
@@ -97,6 +97,48 @@ export function sendSearchUser(model){
         method: {
         DataType: 'String',
         StringValue: 'searchUser'
+        },
+        token: {
+        DataType: 'String',
+        StringValue: sessionStorage.getItem('authToken')
+        },
+        sessionUrl: {
+        DataType: 'String',
+        StringValue: sessionStorage.getItem('sessionUrl')
+        }
+    }, () => null, () => null);
+}
+
+export function storeDarkModeState(model){    
+    sendMessage(model, {
+        controller: {
+        DataType: 'String',
+        StringValue: 'user'
+        },
+        method: {
+        DataType: 'String',
+        StringValue: 'setDarkModeState'
+        },
+        token: {
+        DataType: 'String',
+        StringValue: sessionStorage.getItem('authToken')
+        },
+        sessionUrl: {
+        DataType: 'String',
+        StringValue: sessionStorage.getItem('sessionUrl')
+        }
+    }, () => null, () => null);
+}
+
+export function selectSearchUser(model){
+    sendMessage(model,{
+        controller: {
+        DataType: 'String',
+        StringValue: 'user'
+        },
+        method: {
+        DataType: 'String',
+        StringValue: 'selectSearchUser'
         },
         token: {
         DataType: 'String',

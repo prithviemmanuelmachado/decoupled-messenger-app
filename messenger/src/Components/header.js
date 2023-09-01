@@ -2,7 +2,7 @@ import { AppBar, IconButton, Menu, MenuItem, FormControl, FormControlLabel, Form
 import { useEffect, useState } from "react";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Link } from "react-router-dom";
-import { logout } from "./server";
+import { logout, storeDarkModeState } from "./server";
 
 function Header(props){
     const { darkModeState, setDarkModeState, isUserLoggedIn, setIsUserLoggedIn } = props;
@@ -117,7 +117,10 @@ function Header(props){
                                 <FormControlLabel control={
                                     <Switch 
                                         checked={!darkModeState}
-                                        onChange={() => setDarkModeState(!darkModeState)}
+                                        onChange={() => {
+                                            setDarkModeState(!darkModeState)
+                                            storeDarkModeState(JSON.stringify({darkModeState: !darkModeState}))
+                                        }}
                                         color="secondary"
                                         name="DarkModeControl"/>
                                 } label={

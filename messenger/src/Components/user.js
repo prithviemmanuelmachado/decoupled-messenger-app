@@ -8,7 +8,7 @@ export default function User(props){
     } = props;
     return<>
         <Link onClick={() => {
-            loadMessages(userInfo.userID);
+            loadMessages(userInfo);
         }} underline='none'>
         <Grid item sx={{
             height: '4rem',
@@ -28,7 +28,7 @@ export default function User(props){
                         </Typography>
                     </Grid>
                     <Grid item xs={2} sx={{paddingTop: '1em'}}>
-                        <Chip label={userInfo.unreadMessages} color='secondary'/>
+                        <Chip label={userInfo.unreadMessages === -1? '-' : userInfo.unreadMessages} color='secondary'/>
                     </Grid>
                 </Grid>                
             </Paper>

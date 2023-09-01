@@ -19,20 +19,31 @@ const receiveMessageParams = {
     MessageAttributeNames: ['All'],
 };
 
-export function uploadFiles(data){
+export function uploadFiles(data, success){
+  console.log('file upload triggered');
   let key = data.name;
   let name = key.split('.');
   let ext = name.pop();
-  key = name.join('_') + '_' + Date.now() + '.' + ext;
+  name = name.join('_');
+  name = name.split(' ').join('_')
+  key = name.split('+').join('_');
+  key = key+ '_' + Date.now() + '.' + ext;
   s3.putObject({
     Key: key,
     Body: data,
     Bucket: process.env.REACT_APP_BUCKET
-  }, (err, data)=> {
+  }, (err, idata)=> {
     if(err){
       console.log(err);
     }
-    console.log(data);
+    else{
+      console.log('file uploaded')
+      success({
+        url: 'https://'+process.env.REACT_APP_BUCKET+'.s3.'+process.env.REACT_APP_REGION+'.amazonaws.com/'+key,
+        type: data.type,
+        size: data.size
+      });
+    }
   } )
 }
   
@@ -71,10 +82,10 @@ export function receiveMessage(errfnc, successfnc, url){
     });
 };
 
-export function deleteMessage(id, errfnc){
+export function deleteMessage(id, errfnc, url){
   sqs.deleteMessage(
     {
-      QueueUrl: RESURL,
+      QueueUrl: url ? url : RESURL,
       ReceiptHandle: id,
     },
     function (err, data) {
