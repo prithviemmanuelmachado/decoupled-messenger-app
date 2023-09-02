@@ -20,7 +20,6 @@ const receiveMessageParams = {
 };
 
 export function uploadFiles(data, success){
-  console.log('file upload triggered');
   let key = data.name;
   let name = key.split('.');
   let ext = name.pop();
@@ -37,7 +36,6 @@ export function uploadFiles(data, success){
       console.log(err);
     }
     else{
-      console.log('file uploaded')
       success({
         url: 'https://'+process.env.REACT_APP_BUCKET+'.s3.'+process.env.REACT_APP_REGION+'.amazonaws.com/'+key,
         type: data.type,

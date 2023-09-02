@@ -134,7 +134,7 @@ export function selectSearchUser(model){
     sendMessage(model,{
         controller: {
         DataType: 'String',
-        StringValue: 'user'
+        StringValue: 'message'
         },
         method: {
         DataType: 'String',
@@ -149,4 +149,25 @@ export function selectSearchUser(model){
         StringValue: sessionStorage.getItem('sessionUrl')
         }
     }, () => null, () => null);
+}
+
+export function saveMessage(model){
+    sendMessage(model,{
+        controller: {
+        DataType: 'String',
+        StringValue: 'message'
+        },
+        method: {
+        DataType: 'String',
+        StringValue: 'add'
+        },
+        token: {
+        DataType: 'String',
+        StringValue: sessionStorage.getItem('authToken')
+        },
+        sessionUrl: {
+        DataType: 'String',
+        StringValue: sessionStorage.getItem('sessionUrl')
+        }
+    }, (err) => console.log(err), () => null);
 }

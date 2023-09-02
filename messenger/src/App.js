@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
 import Header from './Components/header';
 import Register from './Containers/Register';
 import Loader from './Components/loader';
-import { logout, loopCheckMessage, selectSearchUser } from './Components/server';
+import { logout, loopCheckMessage, saveMessage, selectSearchUser } from './Components/server';
 import { CssBaseline, GlobalStyles } from '@mui/material';
 import { deleteMessage } from './Components/aws';
 import Toast from './Components/toast';
@@ -136,7 +136,6 @@ function App() {
 
       //send message to get last 20 messages from this user to me
       selectSearchUser(JSON.stringify({userID: user.userID}));
-
     }
   }
   const navigate = useNavigate();
@@ -177,7 +176,6 @@ function App() {
   useEffect(() => {
     if(isUserLoggedIn){
       loopCheckMessage((err) => console.log(err), (data) => {
-        console.log(data);
         data.Messages.forEach(msg => {
           if(msg.MessageAttributes.statusCode.StringValue !== '200'){
             //session expired
@@ -199,11 +197,14 @@ function App() {
 
             //results of selecting a searched user
             if(msg.MessageAttributes.action.StringValue === 'selectSearchUser'){
+              console.log('selectSearchUser', msg.Body);
+              console.log('selectSearchUser parsed',JSON.parse(msg.Body));
+              console.log('selectSearchUser typeof', typeof JSON.parse(msg.Body))
               setDisplayMessages(JSON.parse(msg.Body));
             }
           }
           //delete message once processed
-          deleteMessage(msg.messageHandle, err => null, sessionStorage.getItem('sessionUrl'));
+          deleteMessage(msg.ReceiptHandle, err => null, sessionStorage.getItem('sessionUrl'));
         })
       }, !isUserLoggedIn);
     }
@@ -260,15 +261,18 @@ function App() {
       if(!temp[selected.userID]){
         temp[selected.userID] = [...displayMessages]
       }
-      console.log('sel', selected)
       temp[selected.userID].push(msg);
-      console.log(temp);
       setListofMessages(temp);
 
       //display new messages
       setDisplayMessages([...temp[selected.userID]]);
 
       //send msg to server to save to db
+      saveMessage(JSON.stringify({
+        body: msg.body,
+        userID: selected.userID,
+        name: selected.name
+      }));
     }
   }
 

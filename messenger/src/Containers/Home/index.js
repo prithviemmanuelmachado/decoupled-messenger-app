@@ -122,7 +122,7 @@ function Home(props){
                         </Typography>
                         :displayMessages.map((ele, index) => {
                             return <>
-                            <Message body={ele.body} date={ele.dateTime} isToMe={ele.to === null}/>
+                            <Message body={ele.body} date={typeof ele.dateTime.getDate === 'function' ? ele.dateTime : new Date(ele.dateTime)} isToMe={ele.to === null}/>
                             </>
                         })
                         }
@@ -132,7 +132,7 @@ function Home(props){
                     backgroundColor: 'secondary.input'
                 }}>
                     <SingleInput
-                        isSendActive={selected.userID === undefined}
+                        isSendActive={selected.userID}
                         color='primary'
                         value={message}
                         setValue={(e) => {
@@ -145,7 +145,6 @@ function Home(props){
                         onSend={addMessage}
                         onUpload={(e) => {
                             const files = e.target.files;
-                            console.log('upload triggered : ', files)
                             Object.values(files).forEach(file => {
                                 uploadFiles(file,data => addMessage(data));
                             });
