@@ -84,7 +84,7 @@ export function loopCheckMessage(errfnc, successfnc, stopLoopJob) {
             return;
         setTimeout(() => {
             loopCheckMessage(errfnc, successfnc)
-        }, 2000)
+        }, 500)
     }, sessionStorage.getItem('sessionUrl'));
 }
 

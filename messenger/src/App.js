@@ -86,30 +86,14 @@ const darkThemes = createTheme({
   }
 });
 
-function App() {
+function App(props) {
+
+  let { getListOfUsers, listOfMessages, setListOfUsers } = props;
+  console.log('rerender : ',getListOfUsers());
   const [darkModeState, setDarkModeState] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
   const [message, setMessage] = useState('');
-
-  // listOfUsers data type
-  // [{ 
-  //    name: <user full name>,
-  //    unreadMessages: <number of unread messages>,
-  //    userID: <userID>
-  // }]
-  const [listOfUsers, setListofUsers] = useState([]);
-  
-  // listOfMessages data type
-  // {<userID>: [{ 
-  //    body: <
-  //       text if normal message OR
-  //       if attachment {url: <url to s3>, type: <type of attachment>}
-  //    >,
-  //    to: <null if i sent the message OR userID if someone else sent message>,
-  //    dateTime: <dateTime of message in utf format>
-  // }]}
-  const [listOfMessages, setListofMessages] = useState({});
   const [displayMessages, setDisplayMessages] = useState([]);
   const [displayUsers, setDisplayUsers] = useState([]);
   const [searchUser, setSearchUser] = useState('');
@@ -121,7 +105,7 @@ function App() {
   const loadMessages = (user) => {
     setSelected(user);
     if(listOfMessages[user.userID]){
-      const users = listOfUsers;
+      const users = getListOfUsers();
 
       //update unread message count
       users.forEach((ele, index) => {
@@ -129,7 +113,7 @@ function App() {
           ele.unreadMessages = 0;
         }
       });
-      setListofUsers(users);
+      setListOfUsers([...users]);
       setDisplayMessages(listOfMessages[user.userID]);
     } else {
       setDisplayMessages([]);
@@ -138,6 +122,47 @@ function App() {
       selectSearchUser(JSON.stringify({userID: user.userID}));
     }
   }
+
+  const messageJob = (msg, Msg) => {
+    let contextUser = {
+      userID: msg ? msg.userID : selected.userID, 
+      unreadMessages: msg ? 0 : selected.unreadMessages,
+      name: msg ? msg.name : selected.name
+    }
+    //move new user to top
+    let uTemp = getListOfUsers();
+    let curUser = [];
+    if(listOfMessages[contextUser.userID]){
+      console.log('uTemp', uTemp);
+      uTemp.forEach((ele, index) => {
+        if(ele.userID === contextUser.userID){
+          curUser.push(ele);
+          uTemp.splice(index, 1);
+        }
+      })
+      console.log('curUser: ', curUser)
+      curUser[0].unreadMessages += Msg.isMessageRead ? 1 : 0;
+    }else{
+      curUser.push(contextUser);
+      curUser[0].unreadMessages = 0;
+    }
+    setDisplayUsers([...curUser, ...uTemp]);
+    setListOfUsers([...curUser, ...uTemp]);
+
+    //push message to main array
+    let temp = listOfMessages;
+    if(!temp[contextUser.userID]){
+      temp[contextUser.userID] = [...displayMessages]
+    }
+    temp[contextUser.userID].push(Msg);
+    temp[contextUser.userID].sort(function(a,b){
+      return a.dateTime.getTime() - b.dateTime.getTime();
+    });
+    listOfMessages = temp;
+
+    //display new messages
+    setDisplayMessages([...temp[contextUser.userID]]);
+  } 
   const navigate = useNavigate();
 
   //testing
@@ -166,7 +191,7 @@ function App() {
       setIsUserLoggedIn(false);
       navigate('/login');
     }else{
-      setDisplayUsers(listOfUsers);
+      setDisplayUsers(getListOfUsers());
       setIsUserLoggedIn(true);
       setDarkModeState(sessionStorage.getItem('darkModeState') === 'true')
     }
@@ -197,10 +222,22 @@ function App() {
 
             //results of selecting a searched user
             if(msg.MessageAttributes.action.StringValue === 'selectSearchUser'){
-              console.log('selectSearchUser', msg.Body);
-              console.log('selectSearchUser parsed',JSON.parse(msg.Body));
-              console.log('selectSearchUser typeof', typeof JSON.parse(msg.Body))
               setDisplayMessages(JSON.parse(msg.Body));
+            }
+
+            //incoming message
+            if(msg.MessageAttributes.action.StringValue === 'message'){
+              const newMsg = JSON.parse(msg.Body);
+              messageJob({
+                userID: newMsg.userID,
+                name: newMsg.name,
+                unreadMessages: 0
+              }, {
+                body: newMsg.body,
+                dateTime: new Date(newMsg.dateTime),
+                to: newMsg.to,
+                isMessageRead: newMsg.isMessageRead
+              })
             }
           }
           //delete message once processed
@@ -213,7 +250,7 @@ function App() {
   //local user serach
   useEffect(() => {
     //printMainArrays();
-    const filtered = listOfUsers.filter((ele) => {
+    const filtered = getListOfUsers().filter((ele) => {
       return ele.name.toLowerCase().includes(searchUser.toLowerCase());
     })
     setDisplayUsers(filtered);
@@ -230,7 +267,7 @@ function App() {
   const clearSearch = () => {
     //printMainArrays();
     setSearchUser('');
-    setDisplayUsers([...listOfUsers]);
+    setDisplayUsers(getListOfUsers());
     setDisplayMessages([]);
   }
 
@@ -239,33 +276,7 @@ function App() {
     if(selected.userID){
       const msg = { body: data ? data : message, to: selected.userID, dateTime: new Date() };
 
-      //move new user to top
-      let uTemp = [...listOfUsers];
-      let curUser = {};
-      if(listOfMessages[selected.userID]){
-        uTemp.forEach((ele, index) => {
-          if(ele.userID === selected.userID){
-            curUser = ele;
-            uTemp.splice(index, 1);
-          }
-        })
-      }else{
-        curUser = selected;
-        curUser.unreadMessages = 0;
-      }
-      setListofUsers([curUser, ...uTemp]);
-      setDisplayUsers([curUser, ...uTemp]);
-
-      //push message to main array
-      let temp = listOfMessages;
-      if(!temp[selected.userID]){
-        temp[selected.userID] = [...displayMessages]
-      }
-      temp[selected.userID].push(msg);
-      setListofMessages(temp);
-
-      //display new messages
-      setDisplayMessages([...temp[selected.userID]]);
+      messageJob(undefined, msg);
 
       //send msg to server to save to db
       saveMessage(JSON.stringify({
