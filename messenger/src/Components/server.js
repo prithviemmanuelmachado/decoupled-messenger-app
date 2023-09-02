@@ -1,4 +1,4 @@
-import { sendMessage, receiveMessage, deleteMessage } from "./aws";
+import { sendMessage, receiveMessage } from "./aws";
 
 export function registerUser(model, error, success){
     sendMessage(model,{
@@ -171,3 +171,25 @@ export function saveMessage(model){
         }
     }, (err) => console.log(err), () => null);
 }
+
+export function markMessagesAsRead(model){
+    sendMessage(model,{
+        controller: {
+        DataType: 'String',
+        StringValue: 'message'
+        },
+        method: {
+        DataType: 'String',
+        StringValue: 'markMessagesAsRead'
+        },
+        token: {
+        DataType: 'String',
+        StringValue: sessionStorage.getItem('authToken')
+        },
+        sessionUrl: {
+        DataType: 'String',
+        StringValue: sessionStorage.getItem('sessionUrl')
+        }
+    }, (err) => console.log(err), () => null);
+}
+

@@ -26,9 +26,7 @@ import {BrowserRouter} from 'react-router-dom';
   let listOfMessages = {};
   
   const setListOfUsers = (lou) => {
-    console.log('lou: ', lou);
     listOfUsers = [...lou];
-    console.log('listOfUser: ', listOfUsers);
   }
 
   const getListOfUsers = () => {

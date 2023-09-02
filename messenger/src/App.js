@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
 import Header from './Components/header';
 import Register from './Containers/Register';
 import Loader from './Components/loader';
-import { logout, loopCheckMessage, saveMessage, selectSearchUser } from './Components/server';
+import { logout, loopCheckMessage, markMessagesAsRead, saveMessage, selectSearchUser } from './Components/server';
 import { CssBaseline, GlobalStyles } from '@mui/material';
 import { deleteMessage } from './Components/aws';
 import Toast from './Components/toast';
@@ -89,7 +89,6 @@ const darkThemes = createTheme({
 function App(props) {
 
   let { getListOfUsers, listOfMessages, setListOfUsers } = props;
-  console.log('rerender : ',getListOfUsers());
   const [darkModeState, setDarkModeState] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
@@ -115,6 +114,9 @@ function App(props) {
       });
       setListOfUsers([...users]);
       setDisplayMessages(listOfMessages[user.userID]);
+      markMessagesAsRead(JSON.stringify({
+        userID: user.userID
+      }))
     } else {
       setDisplayMessages([]);
 
@@ -133,15 +135,13 @@ function App(props) {
     let uTemp = getListOfUsers();
     let curUser = [];
     if(listOfMessages[contextUser.userID]){
-      console.log('uTemp', uTemp);
       uTemp.forEach((ele, index) => {
         if(ele.userID === contextUser.userID){
           curUser.push(ele);
           uTemp.splice(index, 1);
         }
       })
-      console.log('curUser: ', curUser)
-      curUser[0].unreadMessages += Msg.isMessageRead ? 1 : 0;
+      curUser[0].unreadMessages += Msg.isMessageRead ? 0 : 1;
     }else{
       curUser.push(contextUser);
       curUser[0].unreadMessages = 0;
@@ -222,7 +222,15 @@ function App(props) {
 
             //results of selecting a searched user
             if(msg.MessageAttributes.action.StringValue === 'selectSearchUser'){
-              setDisplayMessages(JSON.parse(msg.Body));
+              const searchResult = JSON.parse(msg.Body).filter(msg => {
+                return {
+                  body: msg.body,
+                  to: msg.to,
+                  dateTime: new Date(msg.dateTime),
+                  isMessageRead: msg.isMessageRead
+                }
+              })
+              setDisplayMessages(searchResult);
             }
 
             //incoming message
