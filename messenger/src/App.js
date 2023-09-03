@@ -141,7 +141,7 @@ function App(props) {
           uTemp.splice(index, 1);
         }
       })
-      curUser[0].unreadMessages += Msg.isMessageRead ? 0 : 1;
+      curUser[0].unreadMessages += !Msg.isMessageRead && Msg.to === null ? 1 : 0;
     }else{
       curUser.push(contextUser);
       curUser[0].unreadMessages = 0;
@@ -290,7 +290,8 @@ function App(props) {
       saveMessage(JSON.stringify({
         body: msg.body,
         userID: selected.userID,
-        name: selected.name
+        name: selected.name,
+        dateTIme: msg.dateTime
       }));
     }
   }
