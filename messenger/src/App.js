@@ -156,7 +156,7 @@ function App(props) {
     }
     temp[contextUser.userID].push(Msg);
     temp[contextUser.userID].sort(function(a,b){
-      return a.dateTime.getTime() - b.dateTime.getTime();
+      return parseInt(a.order) - parseInt(b.order);
     });
     listOfMessages = temp;
 
@@ -165,18 +165,8 @@ function App(props) {
   } 
   const navigate = useNavigate();
 
-  //testing
-  // const printMainArrays = () => {
-  //   console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
-  //   console.log('displayU :', displayUsers);
-  //   console.log('displayM : ', displayMessages);
-  //   console.log('listOfU : ', listOfUsers);
-  //   console.log('listOfM : ', listOfMessages);
-  // }
-
   //executed on load of page
   useEffect(() => {
-    //printMainArrays();
     //listener to execute logout function on close of tab
     window.addEventListener('beforeunload', () => {
       logout(JSON.stringify({
@@ -227,7 +217,8 @@ function App(props) {
                   body: msg.body,
                   to: msg.to,
                   dateTime: new Date(msg.dateTime),
-                  isMessageRead: msg.isMessageRead
+                  isMessageRead: msg.isMessageRead,
+                  order: msg.order
                 }
               })
               setDisplayMessages(searchResult);
@@ -244,7 +235,8 @@ function App(props) {
                 body: newMsg.body,
                 dateTime: new Date(newMsg.dateTime),
                 to: newMsg.to,
-                isMessageRead: newMsg.isMessageRead
+                isMessageRead: newMsg.isMessageRead,
+                order: newMsg.order
               })
             }
           }
@@ -257,7 +249,6 @@ function App(props) {
 
   //local user serach
   useEffect(() => {
-    //printMainArrays();
     const filtered = getListOfUsers().filter((ele) => {
       return ele.name.toLowerCase().includes(searchUser.toLowerCase());
     })
@@ -265,7 +256,6 @@ function App(props) {
   },[searchUser]);
 
   useEffect(() => {
-    //printMainArrays();
     //auto scroll to bottom of chat
     var messageBox = document.getElementById('messageBox');
     if(messageBox)
@@ -273,16 +263,23 @@ function App(props) {
   }, [displayMessages])
 
   const clearSearch = () => {
-    //printMainArrays();
     setSearchUser('');
     setDisplayUsers(getListOfUsers());
     setDisplayMessages([]);
   }
 
   const addMessage = (data) => {
-    //printMainArrays();
     if(selected.userID){
-      const msg = { body: data ? data : message, to: selected.userID, dateTime: new Date() };
+      const msg = { 
+        body: data ? data : message, 
+        to: selected.userID, 
+        dateTime: new Date(), 
+        order:listOfMessages[selected.userID] ? 
+        listOfMessages[selected.userID][listOfMessages[selected.userID].length - 1] ?  
+        listOfMessages[selected.userID][listOfMessages[selected.userID].length - 1].order + 1
+        : 1
+        : 1
+      };
 
       messageJob(undefined, msg);
 
@@ -291,7 +288,8 @@ function App(props) {
         body: msg.body,
         userID: selected.userID,
         name: selected.name,
-        dateTIme: msg.dateTime
+        dateTIme: msg.dateTime,
+        order: msg.order
       }));
     }
   }

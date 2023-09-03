@@ -30,7 +30,6 @@ function SingleInput(props){
             }} variant='outlined' onChange={(e) => setValue(e)} 
                 onKeyDown={e => {
                     if(e.key === 'Enter'){
-                        console.log(isSendActive? true : false)
                         if(onSearch && value !== '') onSearch();
                         if(onSend && isSendActive && value !== '') onSend();
                         setValue('');
