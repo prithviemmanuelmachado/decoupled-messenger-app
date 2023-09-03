@@ -13,7 +13,8 @@ phases:
       - echo Build started on `date`
   post_build:
     commands:
-      - echo Build completed on `date`
+      - aws s3 rm s3://v1-messenger-app --recursive
+      - aws s3 cp --recursive --acl public-read ./messenger/build s3://v1-messenger-app/
 artifacts:
   files:
     - '**/*'
